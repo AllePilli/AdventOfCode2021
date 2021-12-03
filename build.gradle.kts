@@ -6,13 +6,6 @@ repositories {
     mavenCentral()
 }
 
-dependencies {
-    val multikVersion = "0.1.1"
-    
-    implementation("org.jetbrains.kotlinx:multik-api:$multikVersion")
-    implementation("org.jetbrains.kotlinx:multik-default:$multikVersion")
-}
-
 tasks {
     sourceSets {
         main {

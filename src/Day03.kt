@@ -1,5 +1,3 @@
-import kotlin.math.abs
-
 fun main() {
     fun part1(list: List<List<Int>>): Int {
         val half = list.size / 2
@@ -20,7 +18,6 @@ fun main() {
         for (idx in list.first().indices) {
             val oneFrequency = oxygenRating.count { it[idx] == 1 }
             val mostCommonBit = if (oneFrequency >= oxygenRating.size - oneFrequency) 1 else 0
-            val leastCommonBit = abs(-mostCommonBit)
     
             oxygenRating = oxygenRating.filter { number -> number[idx] == mostCommonBit }
             if (oxygenRating.size == 1) break

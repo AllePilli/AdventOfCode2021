@@ -46,55 +46,17 @@ fun main() {
     
     val whiteSpaceRgx = """\s+""".toRegex()
     
-    fun part1(input: List<String>): Int {
-        val numbersToMark = input.first()
-            .split(",")
-            .map(String::toInt)
-        
-        val boards = input.drop(1)
-            .filterNot(String::isBlank)
-            .chunked(5)
-            .map { lines ->
-                Board(
-                    lines.map { line ->
-                        line.split(whiteSpaceRgx)
-                            .filterNot { it.isBlank() || it.isEmpty() }
-                            .map(String::toInt)
-                    }
-                )
-            }
-        
-        for (number in numbersToMark) {
-            //Mark new number in boards
+    fun part1(numbersToMark: List<Int>, boards: List<Board>): Int {
+        numbersToMark.forEach { number ->
             boards.forEach { it.mark(number) }
-            val bingoBoard = boards.find(Board::hasBingo) ?: continue
-            
-            return bingoBoard.sumUnmarked() * number
+            boards.find(Board::hasBingo)
+                ?.let { return it.sumUnmarked() * number }
         }
         
         throw IllegalStateException("Should have a bingo")
     }
     
-    fun part2(input: List<String>): Int {
-        val numbersToMark = input.first()
-            .split(",")
-            .map(String::toInt)
-    
-        val boards = input.asSequence()
-            .drop(1)
-            .filterNot(String::isBlank)
-            .chunked(5)
-            .map { lines ->
-                Board(
-                    lines.map { line ->
-                        line.split(whiteSpaceRgx)
-                            .filterNot { it.isBlank() || it.isEmpty() }
-                            .map(String::toInt)
-                    }
-                )
-            }
-            .toMutableList()
-        
+    fun part2(numbersToMark: List<Int>, boards: MutableList<Board>): Int {
         val bingoOrder = mutableListOf<Board>()
     
         for (number in numbersToMark) {
@@ -113,16 +75,37 @@ fun main() {
         return bingoOrder.last().sumUnmarked() * bingoOrder.last().lastNumber
     }
     
-    val testInput = readInput("Day04_test")
-    check(part1(testInput) == 4512)
-    check(part2(testInput) == 1924)
+    fun prepareInput(input: List<String>): Pair<List<Int>, List<Board>> {
+        val numbersToMark = input.first()
+            .split(",")
+            .map(String::toInt)
+
+        val boards = input.drop(1)
+            .filterNot(String::isBlank)
+            .chunked(5)
+            .map { lines ->
+                Board(
+                    lines.map { line ->
+                        line.split(whiteSpaceRgx)
+                            .filterNot { it.isBlank() || it.isEmpty() }
+                            .map(String::toInt)
+                    }
+                )
+            }
+        
+        return numbersToMark to boards
+    }
     
-    val input = readInput("Day04")
-    part1(input).let {
+    val (testNumbersToMark, testBoards) = prepareInput(readInput("Day04_test"))
+    check(part1(testNumbersToMark, testBoards) == 4512)
+    check(part2(testNumbersToMark, testBoards.toMutableList()) == 1924)
+    
+    val (numbersToMark, boards) = prepareInput(readInput("Day04"))
+    part1(numbersToMark, boards).let {
         check(it == 50008)
         println(it)
     }
-    part2(input).let {
+    part2(numbersToMark, boards.toMutableList()).let {
         check(it == 17408)
         println(it)
     }

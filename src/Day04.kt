@@ -56,24 +56,18 @@ fun main() {
         throw IllegalStateException("Should have a bingo")
     }
     
-    fun part2(numbersToMark: List<Int>, boards: MutableList<Board>): Int {
-        val bingoOrder = mutableListOf<Board>()
-    
+    fun part2(numbersToMark: List<Int>, boards: MutableList<Board>): Int = buildList {
         for (number in numbersToMark) {
             val stillInTheGame = boards.filterNot(Board::won)
-            
+        
             stillInTheGame.forEach {
                 it.mark(number)
                 it.hasBingo()
             }
-            
-            bingoOrder.addAll(stillInTheGame.filter(Board::won))
-            
-            if (bingoOrder.size == boards.size) break
+        
+            addAll(stillInTheGame.filter(Board::won))
         }
-    
-        return bingoOrder.last().sumUnmarked() * bingoOrder.last().lastNumber
-    }
+    }.last().let { it.sumUnmarked() * it.lastNumber }
     
     fun prepareInput(input: List<String>): Pair<List<Int>, List<Board>> {
         val numbersToMark = input.first()

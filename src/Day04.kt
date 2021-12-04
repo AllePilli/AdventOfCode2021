@@ -57,16 +57,14 @@ fun main() {
     }
     
     fun part2(numbersToMark: List<Int>, boards: MutableList<Board>): Int = buildList {
-        for (number in numbersToMark) {
-            val stillInTheGame = boards.filterNot(Board::won)
-        
-            stillInTheGame.forEach {
-                it.mark(number)
-                it.hasBingo()
-            }
-        
-            addAll(stillInTheGame.filter(Board::won))
-        }
+        for (number in numbersToMark) addAll(
+            boards.filterNot(Board::won)
+                .onEach {
+                    it.mark(number)
+                    it.hasBingo()
+                }
+                .filter(Board::won)
+        )
     }.last().let { it.sumUnmarked() * it.lastNumber }
     
     fun prepareInput(input: List<String>): Pair<List<Int>, List<Board>> {

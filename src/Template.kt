@@ -9,11 +9,11 @@ fun main() {
     
     val input = readInput("Day0X")
     part1(input).let {
-        check(it == 1)
+//        check(it == 1)
         println(it)
     }
     part2(input).let {
-        check(it == 1)
+//        check(it == 1)
         println(it)
     }
 }

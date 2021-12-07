@@ -1,39 +1,58 @@
 fun main() {
-    fun part1(list: List<String>): Int {
-        var fish = list.first()
-            .split(",")
-            .map(String::toInt)
-            .toMutableList()
-    
-        var amtNewFish: Int
+    class Fish(val startDay: Int, val amtNewFish: Long, startAsReady: Boolean = false) {
+        private var daysUntilReady = 2
         
-        repeat(80) { _ ->
-            amtNewFish = fish.count { it == 0 }
-            
-            fish = fish.map { if (it == 0) 6 else it - 1 }
-                .toMutableList()
-                .also { it.addAll(List(amtNewFish) { 8 }) }
+        init {
+            if (startAsReady) daysUntilReady = 0
         }
         
-        return fish.size
+        val ready: Boolean
+            get() = daysUntilReady <= 0
+        
+        fun tick() { daysUntilReady-- }
     }
     
-    fun part2(list: List<String>): Int = 1
+    fun List<String>.prepareInput(): List<Fish> = first()
+        .split(",")
+        .map(String::toInt)
+        .groupingBy { it }
+        .eachCount()
+        .map { (startDay, amt) -> Fish(startDay, amt.toLong(), true) }
     
-    val testInput = readInput("Day06_test")
+    fun simulate(days: Int, fish: List<Fish>): Long = buildList {
+        addAll(fish)
+        (1 until days).forEach { day ->
+            val dayMod7 = day.mod(7)
+            val amtNewFish = sumOf { fish: Fish ->
+                if (fish.ready && dayMod7 == fish.startDay) fish.amtNewFish else 0
+            }
+    
+            forEach(Fish::tick)
+            if (amtNewFish != 0L) add(Fish((dayMod7 + 2).mod(7), amtNewFish))
+        }
+    }.sumOf(Fish::amtNewFish)
+    
+    fun part1(fish: List<Fish>): Long = simulate(80, fish)
+    
+    fun part2(fish: List<Fish>): Long = simulate(256, fish)
+    
+    val testInput = readInput("Day06_test").prepareInput()
     part1(testInput).let {
         println("testPart1: $it")
-        check(it == 5934)
+        check(it == 5934L)
     }
-    check(part2(testInput) == 1)
+    part2(testInput).let {
+        println("testPart2: $it")
+        check(it == 26984457539)
+    }
     
-    val input = readInput("Day06")
+    val input = readInput("Day06").prepareInput()
     part1(input).let {
-        check(it == 345793)
+        check(it == 345793L)
         println(it)
     }
     part2(input).let {
-        //        check(it == 1)
+        check(it == 1572643095893)
         println(it)
     }
 }

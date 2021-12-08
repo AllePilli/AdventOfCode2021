@@ -19,11 +19,11 @@ fun main() {
     readInput("Day0X").prepareInput().let { input ->
         part1(input).let {
             //check(it == 1)
-            println(it)
+            println("Output Part 1: $it")
         }
         part2(input).let {
             //check(it == 1)
-            println(it)
+            println("Output Part 2: $it")
         }
     }
 }

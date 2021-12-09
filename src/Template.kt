@@ -11,7 +11,7 @@ fun main() {
             check(it == 1)
         }
         part2(testInput).let {
-            println("Test Part 2: $it")
+            println("Test Part 2: $it\n")
             check(it == 1)
         }
     }

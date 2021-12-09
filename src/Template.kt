@@ -5,7 +5,7 @@ fun main() {
     
     fun List<String>.prepareInput(): List<String> = this
     
-    readInput("Day0X_test").prepareInput().let { testInput ->
+    readInput("DayXX_test").prepareInput().let { testInput ->
         part1(testInput).let {
             println("Test Part 1: $it")
             check(it == 1)
@@ -16,7 +16,7 @@ fun main() {
         }
     }
     
-    readInput("Day0X").prepareInput().let { input ->
+    readInput("DayXX").prepareInput().let { input ->
         part1(input).let {
             //check(it == 1)
             println("Output Part 1: $it")

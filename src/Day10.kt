@@ -6,10 +6,11 @@ fun main() {
     val openToClose = openChars.zip(closeChars).toMap()
     val points = closeChars.zip(listOf(3L, 57L, 1197L, 25137L)).toMap()
     
+    val stack = Stack<Char>()
+    fun Char.notCorrectClosing(): Boolean = openChars.indexOf(stack.pop()) != closeChars.indexOf(this)
+    
     fun part1(list: List<String>): Long = list.sumOf { line ->
-        val stack = Stack<Char>()
-        fun Char.notCorrectClosing(): Boolean = openChars.indexOf(stack.pop()) != closeChars.indexOf(this)
-        
+        stack.clear()
         line.fold(0L) { score, c ->
             score + when (c) {
                 in openChars -> {
@@ -23,15 +24,12 @@ fun main() {
     
     fun part2(list: List<String>): Long = list
         .mapNotNull { line ->
-            val stack = Stack<Char>()
-            fun Char.notCorrectClosing(): Boolean = openChars.indexOf(stack.pop()) != closeChars.indexOf(this)
-    
+            stack.clear()
             for (c in line) {
                 if (c in openChars) stack.push(c)
                 else if (stack.isEmpty() || c.notCorrectClosing()) return@mapNotNull null
             }
             
-            // If code reaches this point the line is incomplete
             stack.reversed()
                 .fold(0L) { score, c -> score * 5 + closeChars.indexOf(openToClose[c]!!) + 1 }
         }

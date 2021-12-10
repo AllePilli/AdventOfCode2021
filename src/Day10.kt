@@ -3,6 +3,7 @@ import java.util.*
 fun main() {
     val openChars = listOf('(', '[', '{', '<')
     val closeChars = listOf(')', ']', '}', '>')
+    val openToClose = openChars.zip(closeChars).toMap()
     val points = closeChars.zip(listOf(3L, 57L, 1197L, 25137L)).toMap()
     
     fun part1(list: List<String>): Long = list.sumOf { line ->
@@ -20,7 +21,22 @@ fun main() {
         }
     }
     
-    fun part2(list: List<String>): Int = 1
+    fun part2(list: List<String>): Long = list
+        .mapNotNull { line ->
+            val stack = Stack<Char>()
+            fun Char.notCorrectClosing(): Boolean = openChars.indexOf(stack.pop()) != closeChars.indexOf(this)
+    
+            for (c in line) {
+                if (c in openChars) stack.push(c)
+                else if (stack.isEmpty() || c.notCorrectClosing()) return@mapNotNull null
+            }
+            
+            // If code reaches this point the line is incomplete
+            stack.reversed()
+                .fold(0L) { score, c -> score * 5 + closeChars.indexOf(openToClose[c]!!) + 1 }
+        }
+        .sorted()
+        .let { scores -> scores[scores.size / 2] }
     
     fun List<String>.prepareInput(): List<String> = this
     
@@ -31,7 +47,7 @@ fun main() {
         }
         part2(testInput).let {
             println("Test Part 2: $it\n")
-            check(it == 288957)
+            check(it == 288957L)
         }
     }
     
@@ -41,7 +57,7 @@ fun main() {
             println("Output Part 1: $it")
         }
         part2(input).let {
-            //check(it == 1)
+            check(it == 2924734236)
             println("Output Part 2: $it")
         }
     }

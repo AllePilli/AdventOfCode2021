@@ -25,6 +25,11 @@ inline fun <T> Iterable<Iterable<T>>.forEachElement(action: (T) -> Unit): Unit =
 inline fun <T> Iterable<Iterable<T>>.anyElement(predicate: (T) -> Boolean): Boolean = any { it.any(predicate) }
 
 /**
+ * Returns true if all elements in this 2D [Iterable] match the [predicate]
+ */
+inline fun <T> Iterable<Iterable<T>>.allElement(predicate: (T) -> Boolean): Boolean = all { it.all(predicate) }
+
+/**
  * Returns the first element matching the [predicate], returns null if no elements match the [predicate]
  */
 inline fun <T> Iterable<Iterable<T>>.findElement(predicate: (T) -> Boolean): T? {

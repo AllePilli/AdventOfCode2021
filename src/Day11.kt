@@ -1,7 +1,7 @@
 fun main() {
-    data class Octopus(private var startValue: Int, val rowIdx: Int, val colIdx: Int) {
-        val value: Int
-            get() = startValue
+    data class Octopus(private val startValue: Int, val rowIdx: Int, val colIdx: Int) {
+        var value = startValue
+            private set
         
         var hasFlashedThisStep = false
             private set
@@ -9,48 +9,60 @@ fun main() {
         val needsToFlash: Boolean
             get() = value >= 9 && !hasFlashedThisStep
         
-        fun step() { startValue++ }
+        fun step() { value++ }
     
         fun afterStep() {
             hasFlashedThisStep = false
-            startValue = if (value > 9) 0 else value
+            value = if (value > 9) 0 else value
         }
         
         fun flash(): Boolean = if (needsToFlash) {
             hasFlashedThisStep = true
             true
         } else false
-    
-        override fun toString(): String = "Octopus($value)"
+        
+        fun reset() { value = startValue }
     }
     
-    fun List<List<Octopus>>.print() = map { it.map { octopus -> octopus.value } }
-        .forEach { println(it) }
-        .also { println() }
-    
-    fun part1(octopi: List<List<Octopus>>): Int {
+    fun part1(octopi: List<List<Octopus>>): Int = with(octopi) {
         var flashCnt = 0
-        
+
         repeat(100) { _ ->
-            while (octopi.anyElement(Octopus::needsToFlash)) {
-                val octopiToFlash = octopi.flatMap { it.filter(Octopus::needsToFlash) }
+            while (anyElement(Octopus::needsToFlash)) {
+                val octopiToFlash = flatMap { it.filter(Octopus::needsToFlash) }
                 flashCnt += octopiToFlash.size
-                
+        
                 octopiToFlash.forEach { octopus ->
                     octopus.flash()
-                    octopi.surroundingValuesOf(octopus.rowIdx, octopus.colIdx)
-                        .forEach(Octopus::step)
+                    surroundingValuesOf(octopus.rowIdx, octopus.colIdx).forEach(Octopus::step)
                 }
             }
-            
-            octopi.forEachElement(Octopus::step)
-            octopi.forEachElement(Octopus::afterStep)
+    
+            forEachElement(Octopus::step)
+            forEachElement(Octopus::afterStep)
         }
-        
-        return flashCnt
+
+        forEachElement(Octopus::reset)
+
+        flashCnt
     }
     
-    fun part2(list: List<List<Octopus>>): Int = 1
+    fun part2(octopi: List<List<Octopus>>): Int = with(octopi) {
+        var step = 0
+        while (!allElement { it.value == 0 }) {
+            step++
+            while (anyElement(Octopus::needsToFlash)) flatMap { it.filter(Octopus::needsToFlash) }
+                .forEach { octopus ->
+                    octopus.flash()
+                    surroundingValuesOf(octopus.rowIdx, octopus.colIdx).forEach(Octopus::step)
+                }
+    
+            forEachElement(Octopus::step)
+            forEachElement(Octopus::afterStep)
+        }
+        
+        step
+    }
     
     fun List<String>.prepareInput(): List<List<Octopus>> = mapIndexed { rowIdx, line ->
         line.mapIndexed { colIdx, c ->  Octopus(c.digitToInt(), rowIdx, colIdx) }
@@ -63,17 +75,17 @@ fun main() {
         }
         part2(testInput).let {
             println("Test Part 2: $it\n")
-            check(it == 1)
+            check(it == 195)
         }
     }
     
     readInput("Day11").prepareInput().let { input ->
         part1(input).let {
-            //check(it == 1)
+            check(it == 1642)
             println("Output Part 1: $it")
         }
         part2(input).let {
-            //check(it == 1)
+            check(it == 320)
             println("Output Part 2: $it")
         }
     }

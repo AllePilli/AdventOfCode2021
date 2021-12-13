@@ -75,8 +75,8 @@ fun main() {
         }
     }
     
-    fun part1(list: List<String>): Int = buildGraph<Cave> {
-        for ((v1, v2) in list.map { it.split("-") }) addEdge(Cave(v1), Cave(v2))
+    fun part1(list: List<List<String>>): Int = buildGraph<Cave> {
+        list.forEach { (v1, v2) -> addEdge(Cave(v1), Cave(v2)) }
 
         val unvisitableCaves = adjacencyMap
             .filterValues { destinations -> destinations.singleOrNull()?.isSmallRoom ?: false }
@@ -85,12 +85,11 @@ fun main() {
         removeAll(unvisitableCaves)
     }.allPaths(Cave("start"), Cave("end")).size
     
-    fun part2(list: List<String>): Int = buildGraph<Cave> {
-        list.map { it.split("-") }
-            .forEach { (v1, v2) -> addEdge(Cave(v1), Cave(v2)) }
+    fun part2(list: List<List<String>>): Int = buildGraph<Cave> {
+        list.forEach { (v1, v2) -> addEdge(Cave(v1), Cave(v2)) }
     }.extendedPaths(Cave("start"), Cave("end")).size
     
-    fun List<String>.prepareInput(): List<String> = this
+    fun List<String>.prepareInput(): List<List<String>> = map { it.split("-") }
     
     readInput("Day12_test").prepareInput().let { testInput ->
         part1(testInput).let {

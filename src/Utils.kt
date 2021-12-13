@@ -1,6 +1,7 @@
 import java.io.File
 import java.math.BigInteger
 import java.security.MessageDigest
+import java.util.*
 
 /**
  * Reads lines from the given input txt file.
@@ -90,3 +91,11 @@ fun <T> List<List<T>>.surroundingValuesOf(rowIdx: Int, colIdx: Int): List<T> = s
 infix fun String.getGroups(regex: Regex): List<String>? = regex.find(this)
     ?.groupValues
     ?.drop(1)
+
+fun <T> stackOf(vararg items: T): Stack<T> = Stack<T>().apply { items.forEach(::push) }
+
+inline fun <T> Stack<T>.pushPop(item: T, action: () -> Unit): T {
+    push(item)
+    action()
+    return pop()
+}

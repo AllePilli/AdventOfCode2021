@@ -1,39 +1,33 @@
+import java.util.*
 import kotlin.contracts.ExperimentalContracts
 
 @ExperimentalContracts
 @ExperimentalStdlibApi
 fun main() {
-    class Cave(val name: String) {
+    data class Cave(val name: String) {
         val isSmallRoom by lazy { name.first().isLowerCase() }
-        
-        override fun toString(): String = name
-        override fun equals(other: Any?): Boolean = other is Cave && name == other.name
-        override fun hashCode(): Int = name.hashCode()
     }
     
     fun Graph<Cave>.allPaths(source: Cave, destination: Cave): List<List<Cave>> {
         val paths = mutableListOf<List<Cave>>()
         val visited = mutableMapOf<String, Boolean>()
         
-        fun allPaths(source: Cave, destination: Cave, localPathsList: MutableList<Cave>) {
-            if (source == destination) paths.add(localPathsList.toList())
+        fun allPaths(source: Cave, destination: Cave, localPathsStack: Stack<Cave>) {
+            if (source == destination) paths.add(localPathsStack.toList())
             else {
                 visited[source.name] = true
                 
                 for (cave in adjacencyMap[source]!!)
-                    if (!cave.isSmallRoom || !visited.computeIfAbsent(cave.name) { false }) {
-                        localPathsList.add(cave)
-                        val caveIdx = localPathsList.size - 1
-    
-                        allPaths(cave, destination, localPathsList)
-                        localPathsList.removeAt(caveIdx)
-                    }
+                    if (!cave.isSmallRoom || !visited.computeIfAbsent(cave.name) { false })
+                        localPathsStack.pushPop(cave) {
+                            allPaths(cave, destination, localPathsStack)
+                        }
                 
                 visited[source.name] = false
             }
         }
         
-        allPaths(source, destination, mutableListOf(source))
+        allPaths(source, destination, stackOf(source))
         return paths
     }
     
@@ -41,8 +35,8 @@ fun main() {
         val paths = mutableListOf<List<Cave>>()
         val visited = mutableMapOf<String, Int>()
         
-        fun allPaths(source: Cave, destination: Cave, localPathsList: MutableList<Cave>) {
-            if (source == destination) paths.add(localPathsList.toList())
+        fun allPaths(source: Cave, destination: Cave, localPathsStack: Stack<Cave>) {
+            if (source == destination) paths.add(localPathsStack.toList())
             else {
                 if (source.isSmallRoom) visited[source.name] = visited.computeIfAbsent(source.name) { 0 } + 1
                 
@@ -50,11 +44,10 @@ fun main() {
                     val timesVisited by lazy { visited.computeIfAbsent(cave.name) { 0 } }
                     if (cave.name == "end" || !cave.isSmallRoom || timesVisited == 0
                         || (timesVisited == 1 && visited.values.none { it == 2 })) {
-                        localPathsList.add(cave)
-                        val caveIdx = localPathsList.size - 1
                         
-                        allPaths(cave, destination, localPathsList)
-                        localPathsList.removeAt(caveIdx)
+                        localPathsStack.pushPop(cave) {
+                            allPaths(cave, destination, localPathsStack)
+                        }
                     }
                 }
                 
@@ -62,7 +55,7 @@ fun main() {
             }
         }
         
-        allPaths(source, destination, mutableListOf(source))
+        allPaths(source, destination, stackOf(source))
         
         return paths.filter { path ->
             val frequencies = path.filter(Cave::isSmallRoom)

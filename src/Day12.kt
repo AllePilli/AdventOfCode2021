@@ -3,6 +3,7 @@ import kotlin.contracts.ExperimentalContracts
 
 @ExperimentalContracts
 @ExperimentalStdlibApi
+//TODO use path counter instead of keeping whole list in memory. because only the size of the paths list matters
 fun main() {
     data class Cave(val name: String) {
         val isSmallRoom by lazy { name.first().isLowerCase() }

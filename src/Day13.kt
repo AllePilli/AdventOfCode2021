@@ -17,35 +17,10 @@ fun main() {
             }
         }
     
-    fun part1(list: List<String>): Int {
-        val dots = list.mapNotNull { line ->
-            positionRgx.find(line)
-                ?.destructured
-                ?.let { (x, y) -> x.toInt() to y.toInt() }
-        }
-        
-        val fold = list.firstNotNullOf { line ->
-            foldRgx.find(line)
-                ?.destructured
-                ?.let { (type, coordinate) -> type to coordinate.toInt() }
-        }
+    fun part1(startDots: List<Pair<Int, Int>>, folds: List<Pair<String, Int>>): Int =
+        doFolds(startDots, listOf(folds.first())).distinct().size
     
-        return doFolds(dots, listOf(fold)).distinct().size
-    }
-    
-    fun part2(list: List<String>): Int {
-        val startDots = list.mapNotNull { line ->
-            positionRgx.find(line)
-                ?.destructured
-                ?.let { (x, y) -> x.toInt() to y.toInt() }
-        }
-    
-        val folds = list.mapNotNull { line ->
-            foldRgx.find(line)
-                ?.destructured
-                ?.let { (type, coordinate) -> type to coordinate.toInt() }
-        }
-        
+    fun part2(startDots: List<Pair<Int, Int>>, folds: List<Pair<String, Int>>): Int {
         val dots = doFolds(startDots, folds)
         
         val xRange = dots.minOf { it.first }..dots.maxOf { it.first }
@@ -59,25 +34,39 @@ fun main() {
         return 1
     }
     
-    fun List<String>.prepareInput(): List<String> = this
+    fun List<String>.prepareInput(): Pair<List<Pair<Int, Int>>, List<Pair<String, Int>>> {
+        val startDots = mapNotNull { line ->
+            positionRgx.find(line)
+                ?.destructured
+                ?.let { (x, y) -> x.toInt() to y.toInt() }
+        }
+    
+        val folds = mapNotNull { line ->
+            foldRgx.find(line)
+                ?.destructured
+                ?.let { (type, coordinate) -> type to coordinate.toInt() }
+        }
+        
+        return startDots to folds
+    }
     
     readInput("Day13_test").prepareInput().let { testInput ->
-        part1(testInput).let {
+        part1(testInput.first, testInput.second).let {
             println("Test Part 1: $it")
             check(it == 17)
         }
-        part2(testInput).let {
+        part2(testInput.first, testInput.second).let {
             println("Test Part 2: $it\n")
             check(it == 1)
         }
     }
     
     readInput("Day13").prepareInput().let { input ->
-        part1(input).let {
+        part1(input.first, input.second).let {
             check(it == 671)
             println("Output Part 1: $it")
         }
-        part2(input).let {
+        part2(input.first, input.second).let {
             check(it == 1)
             println("Output Part 2: $it")
         }

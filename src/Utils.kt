@@ -88,6 +88,15 @@ fun <T> List<List<T>>.surroundingValuesOf(rowIdx: Int, colIdx: Int): List<T> = s
         try { this[row][col] } catch (ignored: IndexOutOfBoundsException) { null }
     }
 
+inline fun <reified T> List<List<T>>.transposed(): List<List<T>> = if (isEmpty()) this else {
+    val rows = size
+    val cols = first().size
+    
+    val transposed = Array(cols) { i -> Array(rows) { j -> this[j][i] } }
+    
+    transposed.map(Array<T>::toList)
+}
+
 infix fun String.getGroups(regex: Regex): List<String>? = regex.find(this)
     ?.groupValues
     ?.drop(1)

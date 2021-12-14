@@ -1,22 +1,23 @@
 fun main() {
+    fun simulate(template: String, rules: Map<String, String>, times: Int): String = (1..times)
+        .fold(template) { polymer, _ ->
+            buildString {
+                append(polymer.first())
+                polymer.zipWithNext()
+                    .forEach { (first, second) -> append(rules["$first$second"]!!, second) }
+            }
+        }
+    
     fun part1(list: List<String>): Int {
-        var start = list.first()
         val rules = list.drop(2)
             .associate { line ->
                 line.split(" -> ").let { (first, second) -> first to second }
             }
         
-        repeat(10) {
-            start = buildString {
-                append(start.first())
-                start.zipWithNext()
-                    .forEach { (first, second) -> append(rules["$first$second"]!!, second) }
-            }
-        }
-    
-        return start.groupingBy { it }.eachCount().run {
-            maxOf { it.value } - minOf { it.value }
-        }
+        return simulate(list.first(), rules, 10)
+            .groupingBy { it }
+            .eachCount()
+            .run { maxOf { it.value } - minOf { it.value } }
     }
     
     fun part2(list: List<String>): Long {

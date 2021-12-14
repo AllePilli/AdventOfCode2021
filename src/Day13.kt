@@ -2,40 +2,47 @@ fun main() {
     val positionRgx by lazy { """(\d+),(\d+)""".toRegex() }
     val foldRgx by lazy { """fold along ([xy])=(\d+)""".toRegex() }
     
+    fun doFolds(startDots: List<Pair<Int, Int>>, folds: List<Pair<String, Int>>): List<Pair<Int, Int>> {
+        var dots = startDots
+        folds.forEach { (foldAxis, foldCoordinate) ->
+            dots = if (foldAxis == "x") dots.map { (x, y) ->
+                val newX = if (x > foldCoordinate) {
+                    val distanceToFold = x - foldCoordinate
+                    foldCoordinate - distanceToFold
+                } else x
+                
+                newX to y
+            } else dots.map { (x, y) ->
+                val newY = if (y > foldCoordinate) {
+                    val distanceToFold = y - foldCoordinate
+                    foldCoordinate - distanceToFold
+                } else y
+                
+                x to newY
+            }
+        }
+        
+        return dots
+    }
+    
     fun part1(list: List<String>): Int {
-        var dots = list.mapNotNull { line ->
+        val dots = list.mapNotNull { line ->
             positionRgx.find(line)
                 ?.destructured
                 ?.let { (x, y) -> x.toInt() to y.toInt() }
         }
         
-        val (foldAxis, foldCoordinate) = list.firstNotNullOf { line ->
+        val fold = list.firstNotNullOf { line ->
             foldRgx.find(line)
                 ?.destructured
                 ?.let { (type, coordinate) -> type to coordinate.toInt() }
         }
     
-        dots = if (foldAxis == "x") dots.map { (x, y) ->
-            val newX = if (x > foldCoordinate) {
-                val distanceToFold = x - foldCoordinate
-                foldCoordinate - distanceToFold
-            } else x
-    
-            newX to y
-        } else dots.map { (x, y) ->
-            val newY = if (y > foldCoordinate) {
-                val distanceToFold = y - foldCoordinate
-                foldCoordinate - distanceToFold
-            } else y
-    
-            x to newY
-        }
-        
-        return dots.distinct().size
+        return doFolds(dots, listOf(fold)).distinct().size
     }
     
     fun part2(list: List<String>): Int {
-        var dots = list.mapNotNull { line ->
+        val startDots = list.mapNotNull { line ->
             positionRgx.find(line)
                 ?.destructured
                 ?.let { (x, y) -> x.toInt() to y.toInt() }
@@ -47,23 +54,7 @@ fun main() {
                 ?.let { (type, coordinate) -> type to coordinate.toInt() }
         }
         
-        folds.forEach { (foldAxis, foldCoordinate) ->
-            dots = if (foldAxis == "x") dots.map { (x, y) ->
-                val newX = if (x > foldCoordinate) {
-                    val distanceToFold = x - foldCoordinate
-                    foldCoordinate - distanceToFold
-                } else x
-        
-                newX to y
-            } else dots.map { (x, y) ->
-                val newY = if (y > foldCoordinate) {
-                    val distanceToFold = y - foldCoordinate
-                    foldCoordinate - distanceToFold
-                } else y
-        
-                x to newY
-            }
-        }
+        val dots = doFolds(startDots, folds)
         
         val xRange = dots.minOf { it.first }..dots.maxOf { it.first }
         val yRange = dots.minOf { it.second }..dots.maxOf { it.second }

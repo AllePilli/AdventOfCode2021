@@ -108,3 +108,17 @@ inline fun <T> Stack<T>.pushPop(item: T, action: () -> Unit): T {
     action()
     return pop()
 }
+
+fun <T, K> Grouping<T, K>.eachCountLong(): Map<K, Long> = foldTo(
+    destination = mutableMapOf(),
+    initialValueSelector = { _, _ -> kotlin.jvm.internal.Ref.LongRef() },
+    operation = { _, acc, _ -> acc.apply { element += 1 } }
+).mapValuesInPlace { it.value.element }
+
+@Suppress("UNCHECKED_CAST") // tricks with erased generics go here, do not repeat on reified platforms
+inline fun <K, V, R> MutableMap<K, V>.mapValuesInPlace(f: (Map.Entry<K, V>) -> R): MutableMap<K, R> {
+    entries.forEach {
+        (it as MutableMap.MutableEntry<K, R>).setValue(f(it))
+    }
+    return (this as MutableMap<K, R>)
+}

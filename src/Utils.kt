@@ -2,6 +2,7 @@ import java.io.File
 import java.math.BigInteger
 import java.security.MessageDigest
 import java.util.*
+import kotlin.experimental.ExperimentalTypeInference
 
 /**
  * Reads lines from the given input txt file.
@@ -12,6 +13,17 @@ fun readInput(name: String) = File("src", "$name.txt").readLines()
  * Converts string to md5 hash.
  */
 fun String.md5(): String = BigInteger(1, MessageDigest.getInstance("MD5").digest(toByteArray())).toString(16)
+
+@Suppress("EXPERIMENTAL_IS_NOT_ENABLED")
+@OptIn(ExperimentalTypeInference::class)
+@OverloadResolutionByLambdaReturnType
+inline fun <T> Iterable<T>.productOf(selector: (T) -> Long): Long {
+    var product: Long = 1.toLong()
+    for (element in this) {
+        product *= selector(element)
+    }
+    return product
+}
 
 /**
  * Runs the [action] on each element in a 2D [Iterable]
